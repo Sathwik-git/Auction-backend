@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -29,11 +26,9 @@ model Item {
   startingPrice Int  
   imageUrl      String?   
   endTime       DateTime
-  highestBidId  Int?      
   createdAt     DateTime  @default(now())
 
   seller        User      @relation(fields: [sellerId], references: [userId])
-  highestBid    Bid?      @relation("HighestBidRelation", fields: [highestBidId], references: [bidId]) // Relation to the highest bid
   bids          Bid[]     @relation("ItemBidsRelation") // Relation to all bids on the item
 
   @@map("Items")
@@ -48,8 +43,6 @@ model Bid {
 
   item       Item     @relation("ItemBidsRelation", fields: [itemId], references: [itemId]) // Relation to the item that the bid is for
   bidder     User     @relation(fields: [bidderId], references: [userId])
-
+  
   @@map("Bids")
-  Item Item[] @relation("HighestBidRelation")
 }
-
