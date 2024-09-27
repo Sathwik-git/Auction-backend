@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { signupInput } from "./type";
 
 dotenv.config();
 const app = express();
@@ -17,20 +18,24 @@ app.use(express.json());
 
 app.post("/user/signup", async (req, res) => {
   const { username, email, password } = req.body;
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 5);
-    const User = await prisma.user.create({
-      data: {
-        username: username,
-        email: email,
-        password: hashedPassword,
-      },
-    });
-    console.log(User);
-    res.status(200).json("user signed up successfully");
-  } catch {
-    res.status(400).json("Something went wrong");
+  const result = signupInput.safeParse({ username, email, password });
+  if (!result.success) {
+    res.json({ msg: result.error.errors });
+  } else {
+    try {
+      const hashedPassword = await bcrypt.hash(password, 5);
+      const User = await prisma.user.create({
+        data: {
+          username: username,
+          email: email,
+          password: hashedPassword,
+        },
+      });
+      console.log(User);
+      res.status(200).json("user signed up successfully");
+    } catch {
+      res.status(400).json("Something went wrong");
+    }
   }
 });
 
